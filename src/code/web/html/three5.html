@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Three框架</title>
+    <script src="../js/Three.min.js"></script>
+    <script src="../js/Projector.js"></script>
+    <script src="../js/CanvasRenderer.js"></script>
+    <style type="text/css">
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+    </style>
+    <script>
+        var targetRotation = 0;
+        var targetRotationOnMouseDown = 0;
+        var mouseX = 0;
+        var mouseXOnMouseDown = 0;
+        var windowHalfX = window.innerWidth / 2;
+        var windowHalfY = window.innerHeight / 2;
+
+        var renderer;
+        // 初始化
+        function initThree() {
+            width = document.getElementById('canvas-frame').clientWidth;
+            height = document.getElementById('canvas-frame').clientHeight;
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.shadowMapEnabled = true;
+            renderer.setSize(width, height);
+            document.getElementById('canvas-frame').appendChild(renderer.domElement);
+            renderer.setClearColor(0xEEEEEE);
+        }
+
+        var scene; // 场景
+        function initScene() {
+            scene = new THREE.Scene();
+        }
+        var camera;//相机
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(75, width / height, 1, 10000);
+            camera.position.set(-20, 30, 30);
+            camera.up.x = 0;
+            camera.up.y = 0;
+            camera.up.z = 0;
+            camera.lookAt(scene.position);
+        }
+        var light; // 灯光
+        function initLight() {
+            // 点光源
+            var spotLight = new THREE.SpotLight(0xffffff);
+            spotLight.position.set(-140, 60, 100);
+            scene.add(spotLight);
+            spotLight.castShadow = true;
+        }
+        var plane; // 物体
+        function initObject() {
+
+            // 创建立方体1
+            var cubeGeometry = new THREE.CubeGeometry(20, 20, 20);
+            var texture1 = THREE.ImageUtils.loadTexture("../images/rolse1.jpg");
+            var texture2 = THREE.ImageUtils.loadTexture("../images/rolse2.jpg");
+            var texture3 = THREE.ImageUtils.loadTexture("../images/rolse3.jpg");
+            var texture4 = THREE.ImageUtils.loadTexture("../images/rolse4.jpg");
+            var texture5 = THREE.ImageUtils.loadTexture("../images/love2.jpeg");
+            var texture6 = THREE.ImageUtils.loadTexture("../images/love1.jpeg");
+
+            // 添加材质
+            var materialArr = [
+                new THREE.MeshPhongMaterial({ map: texture1 }),
+                new THREE.MeshPhongMaterial({ map: texture2 }),
+                new THREE.MeshPhongMaterial({ map: texture3 }),
+                new THREE.MeshPhongMaterial({ map: texture4 }),
+                new THREE.MeshPhongMaterial({ map: texture5 }),
+                new THREE.MeshPhongMaterial({ map: texture6 })
+            ]
+            var facematerial = new THREE.MeshFaceMaterial(materialArr);
+            Mesh = new THREE.Mesh(cubeGeometry, facematerial);
+            scene.add(Mesh);
+            Mesh.position.y = 10;
+            Mesh.castShadow = true;
+        }
+        function threeStart() {
+            initThree();
+            initScene();
+            initCamera();
+            initLight();
+            initObject();
+            animate();
+            renderer.clear();
+            renderer.render(scene, camera);
+        }
+
+        document.addEventListener('mousedown', onDocumentMouseDown, false);
+        window.addEventListener('resize', onWindowResize, false);
+        function onDocumentMouseDown(event) {
+            event.preventDefault();
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            document.addEventListener('mouseup', onDocumentMouseUp, false);
+            document.addEventListener('mouseout', onDocumentMouseOut, false);
+            mouseXOnMouseDown = event.clientX - windowHalfX;
+            targetRotationOnMouseDown = targetRotation;
+        }
+
+        function onWindowResize() {
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        function onDocumentMouseMove(event) {
+            mouseX = event.clientX - windowHalfX;
+            targetRotation = targetRotationOnMouseDown + (mouseX - mouseXOnMouseDown) * 0.02;
+        }
+
+        function onDocumentMouseUp(event) {
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+        }
+
+        function onDocumentMouseOut(event) {
+            document.removeEventListener('mousemove', onDocumentMouseMove, false);
+            document.removeEventListener('mouseup', onDocumentMouseUp, false);
+            document.removeEventListener('mouseout', onDocumentMouseOut, false);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            Mesh.rotation.y += (targetRotation - Mesh.rotation.y) * 0.05;
+            renderer.render(scene, camera);
+            Mesh.rotation.y += 0.001;
+            Mesh.rotation.z += 0.001;
+            Mesh.rotation.x += 0.001;
+        }
+    </script>
+</head>
+
+<body onload="threeStart();">
+    <div id="canvas-frame"></div>
+</body>
+
+</html>

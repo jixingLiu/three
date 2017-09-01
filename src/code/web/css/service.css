@@ -1,0 +1,64 @@
+html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,input,button,textarea,p,blockquote,th,td{margin:0;padding:0;}
+body{font:14px "\5b8b\4f53",sans-serif;background:#f9f9f9;height:100%;}
+img{border:none;}
+em,i{font-style:normal;}
+ul,ol,li{list-style:none;}
+table {border-collapse:collapse;border-spacing:0;}
+h1,h2,h3,button,input,select,textarea {font-size:100%;}
+input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}
+/* link */
+a{color:#333;text-decoration:none;blr:expression(this.onFocus=this.blur());}
+a:hover{color:#333;text-decoration:underline;}
+a:focus{outline:none;} 
+/* clearfix */
+.clearfix {*zoom:1;}
+.clearfix:after{clear: both; content: "."; display: block; height: 0;visibility: hidden;}
+body{
+    background: url(../images/background.jpg) repeat;
+    font-family: "Microsoft YaHei"
+}
+/*头*/
+.header{
+    height: 90px;
+    line-height: 90px;
+    background: white;
+}
+.header-content{
+    margin: 0px 22px;
+}
+.logo{
+    height: 90px;
+
+    background: white;
+}
+/*协议标题*/
+.content-title{
+    line-height: 114px;
+}
+/*协议标题文字*/
+.content-title-text{
+    margin: auto;
+    display: inline-block;
+}
+/*协议内容*/
+.content{
+    background: white;
+    padding: 37px 42px 70px 42px;
+    color: #666;
+}
+/*底部--友情链接*/
+.footer-link{
+    height: 396px;
+    background: white;
+}
+.footer-block>li{
+    float: left;
+}
+/*底部--关于我们*/
+.footer-about{
+    height: 162px;
+    background: #484848;
+}
+.tem{
+    text-indent: 2em;
+}

@@ -1,0 +1,118 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>纯Css 3d统计图</title>
+    <link rel="stylesheet" href="../css/demo.css">
+    <script src="../js/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class='assembly'>
+        <div class='plane'></div>
+        <div class='bars'>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+            <div class='bar'>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+                <div class='face'></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            var xN, yN, roY = 0, roX = 0;
+            var play = null;
+            $(".plane").mousedown(function (ev) {
+                var x_ = ev.clientX;
+                var y_ = ev.clientY;
+                clearInterval(play);
+                console.log('我按下了');
+                $(this).on('mousemove', function (ev) {
+                    /*获取当前鼠标的坐标*/
+                    var x = ev.clientX;
+                    var y = ev.clientY;
+                    /*两次坐标之间的距离*/
+                    xN = x - x_;
+                    yN = y - y_;
+
+                    roY += xN * 0.2;
+                    
+                    roX -= (yN * 0.1);
+                    console.log(roX,9090)
+                    console.log('移动');
+                    console.log(typeof (yN),yN, roX, 9090)
+                    $(this).parent(".assembly").css({
+                        transform: 'perspective(800px) rotateX(' + roX + 'deg) rotateY(' + roY + 'deg)'
+                    });
+
+                    x_ = ev.clientX;
+                    y_ = ev.clientY;
+
+                });
+            }).on(function () {
+                $(this).unbind('mousemove');
+                var play = setInterval(function () {
+
+                    xN *= 0.95;
+                    yN *= 0.95
+                    if (Math.abs(xN) < 1 && Math.abs(yN) < 1) {
+                        clearInterval(play);
+                    }
+                    roY += xN * 0.2;
+                    roX -= yN * 0.1;
+                    $(this).parent().css({
+                        transform: 'perspective(800px) rotateX(' + roX + 'deg) rotateY(' + roY + 'deg)'
+                    });
+
+                }, 30);
+
+            });
+        })
+    </script>
+</body>
+
+</html>

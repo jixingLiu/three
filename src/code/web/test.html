@@ -1,0 +1,39 @@
+<html>
+	<head>
+		<title>
+			可拖动div
+		</title>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script type="text/javascript">
+		
+			$(document).ready(function(){
+			
+				$("#moveBar").mousedown(function(event){
+						var ismove=true;
+						var abs_x = event.pageX-$("#moveBar").offset().left;
+						
+						var abs_y = event.pageY-$("#moveBar").offset().top;
+						$(document).mousemove(function(event){
+						    if(ismove){
+								 var obj = $('div.moveDiv');
+								
+								 obj.css("left",event.pageX-abs_x).css("top",event.pageY-abs_y);
+							}
+						}).mouseup(function(){
+						 
+							ismove=false;
+							
+						});
+				});
+				
+			});
+			
+		</script>
+	</head>
+	<body>
+		<div id="moveDiv" class="moveDiv" style="position: absolute;width:400px;height:300px;border:1px solid red;">
+			<div id="moveBar" style="width:400px;height:30px;border-bottom:1px solid red;"></div>
+			<div style="width:400px;height:269px;"></div>
+		</div>
+	</body>
+</html>

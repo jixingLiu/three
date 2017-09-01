@@ -1,0 +1,21 @@
+   --  1.电+移动端网页版首页   appindex.html
+   --  2.售电咨询  （需求列表无数据） require_nodata_list.html
+   --  2.销电宣传咨询页    djxc_index.html (7.10-7.11,ljx)
+   --  3.售电信息化 （需求列表有数据）require_hasdata_list.html
+   --  3.售电信息化   （需求列表有数据） require_list_hasdata.html
+   --  6.需求详情  require_detail.html
+   --  10.电+资讯   （资讯列表） message_list.html
+   --  11.电+资讯-资讯大屏-售电公司数量  djzx_zxdp_list.html
+   --  13.电+资讯-资讯大屏-资讯详情  message_detail.html
+   --  13.电+资讯-资讯大屏-资讯详情-有配图 message_deatil_haspic.html
+   --  13.电+资讯-资讯大屏-最新出台电改政策  djzx_zxdp_policy.html （7.5）
+   --  13.电+资讯-资讯大屏-最新出台电改政策-更多 djzx_zxdp_policy_more.html（7.5）
+   --  14.电+资讯-资讯大屏-竞价交易趋势曲线  djzx_zxdp_trading_curve.html（7.5）
+   --  15.电+智库  （问答列表）  qs_list.html
+   --  17.问题详情-没有答案  qs_detail_noanswer.html
+   --  17.问题详情-没有最佳答案-有问题说明  qs_detail_hasnobestans_hasdescription.html
+   --  17.问题详情-没有最佳答案 (折叠/展开)   qs_detail_hasnobestans.html
+   --  17.问题详情-没有最佳答案 -折叠-图片展开  qs_detail_hasnobestans_haspic.html
+   --  17.问题详情-已有最佳答案（折叠/展开）  qs_detail_hasbestans.html
+   --  25-售电培训企业主页 sdpx.html (7.5)
+   

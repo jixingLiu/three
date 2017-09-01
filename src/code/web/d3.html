@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' />
+    <title></title>
+    <link rel='stylesheet' href='css/bootstrap.min.css' />
+    <link rel='stylesheet' href='css/font-awesome.min.css' />
+    <link rel="stylesheet" type="" href="css/test.css">
+    <script src='../web/js/jquery.min.js'></script>
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts-3d.js"></script>
+    <script type="text/javascript" src="js/layui/layui.js"></script>
+</head>
+
+<body>
+    <!--定义一个容器  -->
+    <div class="container"></div>
+    <script>
+        Math.easeOutBounce = function (pos) {
+            if ((pos) < (1 / 2.75)) {
+                return (7.5625 * pos * pos);
+            }
+            if (pos < (2 / 2.75)) {
+                return (7.5625 * (pos -= (1.5 / 2.75)) * pos + 0.75);
+            }
+            if (pos < (2.5 / 2.75)) {
+                return (7.5625 * (pos -= (2.25 / 2.75)) * pos + 0.9375);
+            }
+            return (7.5625 * (pos -= (2.625 / 2.75)) * pos + 0.984375);
+        };
+        $(function () {
+            $(".container").highcharts({
+                // 去掉highchart.com的链接
+                credits: {
+                    enabled: false
+                },
+                exporting: {
+                    enabled: true
+                },
+                chart: {
+                    type: 'column',
+                    margin: '95',
+                    options3d: {
+                        enabled: true,
+                        alpha: 15,
+                        beta: 25,
+                        depth: 100,
+                        viewDistance: 100,
+                        frame: {
+                            side: {
+                                size: 1
+                            }
+                        },
+                    }
+                },
+                title: {
+                    // align: 'center',
+                    text: '2017年月销售统计图表',
+                    y: 45,
+                    style: {
+                        color: "#0ff",
+                        transform: 'rotateX(-21deg) rotateY(9deg) rotateZ(9deg)'
+                    }
+                },
+                legend: { enabled: false },
+                plotOptions: {
+                    column: {
+                        depth: 35
+                    },
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                mouseOver: function (event) {
+                                   if(event.target.plotX < 425){
+                                    $(".container").removeClass("right-animate")
+                                        .addClass("left-animate")
+                                   }else{
+                                    $(".container").removeClass("left-animate")
+                                        .addClass("right-animate")
+                                   }
+                                    // chart.options3d.beta: 45
+                                },
+                                click: function () {
+                                    layui.use('layer', function () {
+                                        var layer = layui.layer;
+                                        layer.open({
+                                            title: '详细数据',
+                                            content: `<div class="dialog"></div>`,
+                                            offset: '60px',
+                                            success: function (layero, index) {
+                                                $(".layui-layer-dialog").width('560');
+                                                console.log("980")
+                                                $(".dialog").highcharts({
+                                                    // 去掉highchart.com的链接
+                                                    credits: {
+                                                        enabled: false
+                                                    },
+                                                    title: {
+                                                        text: '月份销售情况折线图'
+                                                    },
+                                                    xAxis: {
+                                                        categories: ['1', '2', '3', '4', '5', '6'],
+                                                        title: {
+                                                            text: "销售"
+                                                        }
+                                                    },
+                                                    yAxis: {
+                                                        alternateGridColor: '#FDFFD5',
+                                                        title: {
+                                                            text: "销售金额"
+                                                        }
+                                                    },
+                                                    series: [{
+                                                        data: [29.9, 71.5, 106.4, 129.2, 144.0, 176.0]
+                                                    }],
+                                                });
+                                            }
+                                        });
+                                    });
+                                }
+                            },
+                        },
+                        animation: {
+                            duration: 2000,
+                            easing: 'easeOutBounce'
+                        }
+                    }
+                },
+                xAxis: {
+                    //categories: Highcharts.getOptions().lang.shortMonths
+                    categories: ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月'],
+                    title: {
+                        text: "季度月份",
+                        offset: 45,
+                        align: "middle"
+                    }
+                },
+                yAxis: {
+                    title: {
+                        text: "销售数量"
+                    }
+                },
+                series: [{
+                    name: '销售额',
+                    // data: [2, 3, 0, 4, 0, 5, 1, 4, 6, 3]
+                    data: [
+                        { y: 2, url: "https://https://baidu.com" },
+                        { y: 3, url: "https://baidu.com" },
+                        { y: 0, url: "https://baidu.com" },
+                        { y: 4, url: "https://baidu.com" },
+                        { y: 0, url: "https://baidu.com" },
+                        { y: 5, url: "https://baidu.com" },
+                        { y: 1, url: "https://baidu.com" },
+                        { y: 4, url: "https://baidu.com" },
+                        { y: 6, url: "https://baidu.com" },
+                        { y: 3, url: "https://baidu.com" },
+                    ]
+                },
+                ]
+            })
+        })
+    </script>
+</body>
+
+</html>

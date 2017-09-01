@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Three框架</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/Three.min.js"></script>
+    <script src="../js/OrbitControls.js"></script>
+    <script src="../js/Detector.js"></script>
+
+    <style type="text/css">
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+
+        #canvas1,
+        #canvas2,
+        #canvas3,
+        #canvas4,
+        #canvas5,
+        #canvas6 {
+            display: none;
+        }
+    </style>
+</head>
+
+<body onload="threeStart();">
+    <div id="canvas-frame">
+        <canvas id="canvas1"></canvas>
+        <canvas id="canvas2"></canvas>
+        <canvas id="canvas3"></canvas>
+        <canvas id="canvas4"></canvas>
+        <canvas id="canvas5"></canvas>
+        <canvas id="canvas6"></canvas>
+        
+    </div>
+    <script>
+        var canvas1 = document.getElementById('canvas1');
+        var canvas2 = document.getElementById('canvas2');
+        var canvas3 = document.getElementById('canvas3');
+        var canvas4 = document.getElementById('canvas4');
+        var canvas5 = document.getElementById('canvas5');
+        var canvas6 = document.getElementById('canvas6');
+        //canvas.width = canvas.height = 120;
+        var ctx1 = canvas1.getContext('2d');
+        var ctx2 = canvas2.getContext('2d');
+        var ctx3 = canvas3.getContext('2d');
+        var ctx4 = canvas4.getContext('2d');
+        var ctx5 = canvas5.getContext('2d');
+        var ctx6 = canvas6.getContext('2d');
+        var ctx = [];
+        ctx = [ctx1, ctx2, ctx3, ctx4, ctx5, ctx6];
+
+        var renderer;
+        // 初始化
+        function initThree() {
+            width = document.getElementById('canvas-frame').clientWidth;
+            height = document.getElementById('canvas-frame').clientHeight;
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.shadowMapEnabled = true;
+            renderer.setSize(width, height);
+            document.getElementById('canvas-frame').appendChild(renderer.domElement);
+            renderer.setClearColor(0x00ffff);
+        }
+
+        var scene; // 场景
+        function initScene() {
+            scene = new THREE.Scene();
+        }
+        var camera;//相机
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(65, width / height, 1, 10000);
+            camera.position.set(-30, 50, 50);
+            camera.lookAt(scene.position);
+        }
+        var light; // 灯光
+        function initLight() {
+            // 点光源
+            var light = new THREE.DirectionalLight(0xffffff);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+
+            var light = new THREE.DirectionalLight(0x002288);
+            light.position.set(-1, -1, -1);
+            scene.add(light);
+
+            var light = new THREE.AmbientLight(0x222222);
+            scene.add(light);
+        }
+        var plane; // 物体
+        function initObject() {
+            // 创建平面
+            var planeGeometry = new THREE.PlaneBufferGeometry(120, 60);
+            planeGeometry.rotateY(- Math.PI / 2);
+            var planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, overdraw: 0.5 });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.rotateY(Math.PI/2);
+            plane.position.set(20, -10, -130)
+            scene.add(plane);
+            // 创建材质
+            texture1 = new THREE.Texture(canvas1);
+            texture2 = new THREE.Texture(canvas2);
+            texture3 = new THREE.Texture(canvas3);
+            texture4 = new THREE.Texture(canvas4);
+            texture5 = new THREE.Texture(canvas5);
+            texture6 = new THREE.Texture(canvas6);
+
+            // 添加材质
+            var materialArr = [
+                new THREE.MeshPhongMaterial({ map: texture1 }),
+                new THREE.MeshPhongMaterial({ map: texture2 }),
+                new THREE.MeshPhongMaterial({ map: texture3 }),
+                new THREE.MeshPhongMaterial({ map: texture4 }),
+                new THREE.MeshPhongMaterial({ map: texture5 }),
+                new THREE.MeshPhongMaterial({ map: texture6 })
+            ]
+            // 添加文字
+            planeText1 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[0]);
+            planeText2 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[1]);
+            planeText3 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[2]);
+            planeText4 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[3]);
+            planeText5 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[4]);
+            planeText6 = new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[5]);
+            var planeText = [];
+            planeText = [planeText1, planeText2, planeText3, planeText4, planeText5, planeText6]
+            for (let i = 0; i < planeText.length; i++) {
+                planeText[i].rotateX(-Math.PI / 2);
+                planeText[i].rotateZ(1);
+                planeText[i].position.set(-10 + 6 * i, 0.1, 6)
+                scene.add(planeText[i]);
+            }
+            var material = new THREE.MeshPhongMaterial({ color: "0x0c0c0c" });
+            cube1 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 3, 40, 10), material);
+            cube2 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 10, 40, 10), material);
+            cube3 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 6, 40, 10), material);
+            cube4 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 8, 40, 10), material);
+            cube5 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 2, 40, 10), material);
+            cube6 = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 8, 40, 10), material);
+
+
+            cube1.scale.y = 0.1
+            cube2.scale.y = 0.1
+            cube3.scale.y = 0.1
+            cube4.scale.y = 0.1
+            cube5.scale.y = 0.1
+            cube6.scale.y = 0.1
+
+            add(0.1);
+            function add(i) {
+                var timer = setInterval(function () {
+                    i = parseFloat((i + 0.1).toFixed(2));
+                    cube1.scale.y = i;
+                    cube2.scale.y = i;
+                    cube3.scale.y = i;
+                    cube4.scale.y = i;
+                    cube5.scale.y = i;
+                    cube6.scale.y = i;
+                    cube1.position.set(-10, 1.5 * i, 0);
+                    cube2.position.set(-4, 5 * i, 0);
+                    cube3.position.set(2, 3 * i, 0);
+                    cube4.position.set(8, 4 * i, 0);
+                    cube5.position.set(14, 1 * i, 0);
+                    cube6.position.set(20, 4 * i, 0);
+                    scene.add(cube1); scene.add(cube2);
+                    scene.add(cube3); scene.add(cube4);
+                    scene.add(cube5); scene.add(cube6);
+
+                    if (i >= 1) {
+                        clearInterval(timer);
+                        timer = null;
+                        return;
+                    }
+                    initTexts();
+                }, 500)
+            }
+        }
+        function threeStart() {
+            initThree();
+            initScene();
+            initCamera();
+            initLight();
+            initObject();
+            draw(ctx);
+            animate();
+            controls();
+            renderer.clear();
+            texture1.needsUpdate = true;
+            texture2.needsUpdate = true;
+            texture3.needsUpdate = true;
+            texture4.needsUpdate = true;
+            texture5.needsUpdate = true;
+            texture6.needsUpdate = true;
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+
+        }
+        function controls() {
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.addEventListener("change", render);
+            controls.target.set(0, 0, 0);
+        }
+        function render() {
+            renderer.render(scene, camera);
+        }
+        // 画文字
+        function draw(ctx) {
+            console.log(ctx, 909090)
+            for (var i = 0; i < ctx.length; i++) {
+                ctx[i].font = '48pt Arial';
+                ctx[i].fillStyle = '#c0c0c0';
+                ctx[i].fillRect(0, 0, canvas1.width, canvas1.height);
+                ctx[i].fillStyle = '#f00';
+                ctx[i].textAlign = "center";
+                ctx[i].textBaseline = "middle";
+                if (i == 0) {
+                    ctx[i].fillText('四月', canvas1.width / 2, canvas1.height / 2);
+                }
+                if (i == 1) {
+                    ctx[i].fillText('五月', canvas1.width / 2, canvas1.height / 2);
+                }
+                if (i == 2) {
+                    ctx[i].fillText('六月', canvas1.width / 2, canvas1.height / 2);
+                }
+                if (i == 3) {
+                    ctx[i].fillText('七月', canvas1.width / 2, canvas1.height / 2);
+                }
+                if (i == 4) {
+                    ctx[i].fillText('八月', canvas1.width / 2, canvas1.height / 2);
+                    ctx[i].save();
+                }
+                if (i == 5) {
+                    ctx[i].fillText('九月', canvas1.width / 2, canvas1.height / 2);
+                }
+                ctx[i].save();
+            }
+        }
+        function initTexts() {
+            // 加载font的json包,传入函数
+            var text = new THREE.FontLoader().load('../fonts/helvetiker_bold.typeface.json', function (text) {
+                var data = [3, 20, 6, 8, 2, 8];
+                var gem1, gem2, gem3, gem4, gem5, gem6;
+                var gem = [gem1, gem2, gem3, gem4, gem5, gem6];
+                for (let i = 0; i < gem.length; i++) {
+                    gem[i] = new THREE.TextGeometry(data[i], {
+                        size: 3,
+                        height: 0.1,
+                        font: text,
+                        style: 'normal',
+                        bevelThickness: 0.1,
+                        bevelSize: 0.1,
+                        curveSegments: 0.1,
+                        bevelEnabled: true,
+                    });
+                }
+                var mat = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular: 0xffffff,
+                    shininess: 30,
+                    shading: THREE.FlatShading
+                });
+                var textObj = [];
+                for (var i = 0; i < gem.length; i++) {
+                    gem[i].center();
+                    textObj.push(new THREE.Mesh(gem[i], mat));
+                }
+                //console.log(textObj,9999)
+                for (let i = 0; i < textObj.length; i++) {
+                    textObj[i].rotation.y = Math.PI / 6;
+                   //textObj[i].rotation.x = -Math.PI / 6;
+                    textObj[i].position.set(-10 + 6 * i, 12.1, 0);
+                    textObj[i].castShadow = true;
+                    scene.add(textObj[i]);
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

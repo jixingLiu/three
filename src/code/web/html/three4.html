@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Three框架</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/Three.min.js"></script>
+    <script src="../js/OrbitControls.js"></script>
+    <script src="../js/Detector.js"></script>
+
+    <style type="text/css">
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+
+<body onload="threeStart();">
+    <div id="canvas-frame">
+        <canvas id="canvas"></canvas>
+    </div>
+    <script>
+        var canvas = document.getElementById('canvas');
+        canvas.width = canvas.height = 120;
+        var ctx = canvas.getContext('2d');
+        var renderer;
+        // 初始化
+        function initThree() {
+            width = document.getElementById('canvas-frame').clientWidth;
+            height = document.getElementById('canvas-frame').clientHeight;
+            renderer = new THREE.WebGLRenderer({
+                antialias: true
+            });
+            renderer.shadowMapEnabled = true;
+            renderer.setSize(width, height);
+            document.getElementById('canvas-frame').appendChild(renderer.domElement);
+            renderer.setClearColor(0xEEEEEE);
+        }
+
+        var scene; // 场景
+        function initScene() {
+            scene = new THREE.Scene();
+        }
+        var camera;//相机
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(65, width / height, 1, 10000);
+            camera.position.set(-30, 50, 50);
+            camera.lookAt(scene.position);
+        }
+        var light; // 灯光
+        function initLight() {
+            // 点光源
+            var light = new THREE.DirectionalLight( 0xffffff );
+            light.position.set( 1, 1, 1 );
+            scene.add( light );
+
+            var light = new THREE.DirectionalLight( 0x002288 );
+            light.position.set( -1, -1, -1 );
+            scene.add( light );
+
+            var light = new THREE.AmbientLight( 0x222222 );
+            scene.add( light );
+        }
+        var plane; // 物体
+        function initObject() {
+            // 创建平面
+            var planeGeometry = new THREE.PlaneBufferGeometry(60, 60);
+            planeGeometry.rotateX(- Math.PI / 2);
+            var planeMaterial = new THREE.MeshBasicMaterial({ color: 0xe0e0e0, overdraw: 0.5 });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            scene.add(plane);
+            // 创建立方体1
+            texture = new THREE.Texture(canvas);
+            // var cubeGeometry = new THREE.CubeGeometry(3, 3, 3);
+            var cubeMaterial = new THREE.MeshLambertMaterial({
+                //color: 0x7777ff
+                //map: THREE.ImageUtils.loadTexture("../images/ccc.jpg"),
+                map: texture,
+                //side: THREE.DoubleSide,
+            });
+            cube1 = new THREE.Mesh(new THREE.CubeGeometry(4, 3, 4), cubeMaterial);
+            cube2 = new THREE.Mesh(new THREE.CubeGeometry(4, 20, 4), cubeMaterial);
+            cube3 = new THREE.Mesh(new THREE.CubeGeometry(4, 6, 4), cubeMaterial);
+            cube4 = new THREE.Mesh(new THREE.CubeGeometry(4, 8, 4), cubeMaterial);
+            cube5 = new THREE.Mesh(new THREE.CubeGeometry(4, 2, 4), cubeMaterial);
+            cube6 = new THREE.Mesh(new THREE.CubeGeometry(4, 8, 4), cubeMaterial);
+
+            cube1.position.set(-10, 1.5, 0);
+            cube2.position.set(-4, 10, 0);
+            cube3.position.set(2, 3, 0);
+            cube4.position.set(8, 4.5, 0);
+            cube5.position.set(14, 1, 0);
+            cube6.position.set(20, 4, 0);
+            scene.add(cube1); scene.add(cube2);
+            scene.add(cube3); scene.add(cube4);
+            scene.add(cube5); scene.add(cube6);
+        }
+        function threeStart() {
+            initThree();
+            initScene();
+            initCamera();
+            initLight();
+            initObject();
+            draw();
+            animate();
+            controls();
+            renderer.clear();
+            texture.needsUpdate = true;
+            renderer.render(scene, camera);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+        function controls() {
+            controls = new THREE.OrbitControls(camera,renderer.domElement);
+            controls.addEventListener("change", render);
+            controls.target.set(0,0,0);
+        }
+        function render() {
+            renderer.render(scene, camera);
+        }
+        // 画文字
+        function draw() {
+            ctx.font = '48pt Arial';
+            ctx.fillStyle = '#0ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
+            ctx.fillStyle = '#f00';
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(90, canvas.width / 2, canvas.height / 2);
+        }
+    </script>
+</body>
+
+</html>

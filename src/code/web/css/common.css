@@ -1,0 +1,19 @@
+/*主宽*/
+.main{
+    width: 1190px;
+    margin: 0 auto;
+}
+.fc-1{color: #999}
+.fc-2{color: #333}
+.fs-12{font-size: 12px;}
+.fs-18{font-size: 18px;}
+.pr-22{padding-right: 22px;}
+.pl-22{padding-left: 22px;}
+.pl-42{padding-left: 42px;}
+.pt-33{padding-top: 33px;}
+.ml-10{margin-left: 10px;}
+.mt-10{margin-top: 10px;}
+.mb-33{margin-bottom: 33px;}
+.mt-33{margin-top: 33px;}
+.mt-35{margin-top: 35px;}
+.lh-24{line-height: 24px;}

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>3D柱形图</title>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/Three.min.js"></script>
+    <script src="../js/OrbitControls.js"></script>
+    <script src="../js/Detector.js"></script>
+
+    <style type="text/css">
+        div#canvas-frame {
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            height: 600px;
+            background-color: #EEEEEE;
+        }
+
+        #canvas1,
+        #canvas2,
+        #canvas3,
+        #canvas4,
+        #canvas5,
+        #canvas6 {
+            display: none;
+        }
+    </style>
+</head>
+
+<body onload="threeStart();">
+    <div id="canvas-frame">
+        <canvas id="canvas1"></canvas>
+        <canvas id="canvas2"></canvas>
+        <canvas id="canvas3"></canvas>
+        <canvas id="canvas4"></canvas>
+        <canvas id="canvas5"></canvas>
+        <canvas id="canvas6"></canvas>
+    </div>
+    <script>
+        // 3D柱形图的优化
+        // 定义数据及其常量
+        var data = [3, 10, 6, 8, 2, 8];
+        var datap = [2, 4, 6, 8, 10];
+        var data1 = ['四月', '五月', '六月', '七月', '八月', '九月', '十月'];
+        var canvas = [];
+        var ctx = [];
+        var width, height;
+        var scene, camera, renderer;
+        var planeText = [];
+        var texture = [];
+        canvas = [
+            document.getElementById('canvas1'),
+            document.getElementById('canvas2'),
+            document.getElementById('canvas3'),
+            document.getElementById('canvas4'),
+            document.getElementById('canvas5'),
+            document.getElementById('canvas6')
+        ];
+        for (let i = 0; i < canvas.length; i++) {
+            ctx[i] = canvas[i].getContext('2d')
+        }
+        function threeStart() {
+            initThree();
+            initScene();
+            initCamera();
+            initLight();
+            draw(ctx);
+            initTexts();
+            initObject();
+            animate();
+            controls();
+            for (let i = 0; i < texture.length; i++) {
+                texture[i].needsUpdate = true;
+            }
+            renderer.clear();
+            renderer.render(scene, camera);
+        }
+        // 初始化渲染器
+        function initThree() {
+            width = document.getElementById("canvas-frame").clientWidth;
+            height = document.getElementById("canvas-frame").clientHeight;
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+            });
+            // 可加载阴影
+            renderer.shadowMapEnabled = true;
+            renderer.setSize(width, height);
+            document.getElementById('canvas-frame').appendChild(renderer.domElement);
+            renderer.setClearColor(0xAAECEA);
+        }
+        function initScene() {
+            scene = new THREE.Scene();
+        }
+        function initCamera() {
+            camera = new THREE.PerspectiveCamera(65, width / height, 1, 10000);
+            camera.position.set(-30, 50, 50);
+            camera.lookAt(scene.position);
+        }
+        var hemisphereLight, shadowLight;
+        function initLight() {
+            // 点光源
+            var light = new THREE.DirectionalLight(0xffffff);
+            light.position.set(1, 1, 1);
+            scene.add(light);
+
+            var light = new THREE.DirectionalLight(0x002288);
+            light.position.set(-1, -1, -1);
+            scene.add(light);
+
+            var light = new THREE.AmbientLight(0x222222);
+            scene.add(light);
+        }
+        var cube = [];
+        var texture = [];
+        function initObject() {
+            // 辅助坐标
+            axes = new THREE.AxisHelper(200);
+            scene.add(axes);
+            //画纵向坐标
+            var len = 6;
+            (function (len) {
+                var geometry = new THREE.Geometry();
+                var p1 = new THREE.Vector3(-20, 0, -3);
+                var p2 = new THREE.Vector3(20, 0, -3);
+                geometry.vertices.push(p1);
+                geometry.vertices.push(p2);
+                var i = 0;
+                var timer = setInterval(function () {
+                    var line = new THREE.Line(geometry, new
+                        THREE.LineBasicMaterial({ color: 0xcccccc, opacity: 0.2 }));
+                    line.position.y = i * 2;
+                    scene.add(line);
+                    i++;
+                    if (i >= len) {
+                        clearInterval(timer);
+                        timer = null;
+                        return;
+                    }
+                }, 100)
+            })(len)
+            // 创建纵横坐标
+            var geometry = new THREE.Geometry();
+            var p1 = new THREE.Vector3(-20, 0, -3);
+            var p2 = new THREE.Vector3(-20, 0, 3);
+            geometry.vertices.push(p1);
+            geometry.vertices.push(p2);
+            (function (len) {
+                var i = 0;
+                var timer = setInterval(function () {
+                    var line = new THREE.Line(geometry, new
+                        THREE.LineBasicMaterial({ color: 0xcccccc, opacity: 0.2 }));
+                    line.position.y = i * 2;
+                    scene.add(line);
+                    i++;
+                    if(i >= len){
+                        clearInterval(timer);
+                        timer = null;
+                    }
+                },100);
+            })(len)
+            // 创建平面
+            var planeGeometry = new THREE.PlaneBufferGeometry(80, 60);
+            planeGeometry.rotateX(- Math.PI / 2);
+            var planeMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000, overdraw: 0.5 });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            scene.add(plane);
+
+            // 柱体
+            let material = new THREE.MeshPhongMaterial({ color: "0x0c0c0c" });
+            for (let i = 0; i < data.length; i++) {
+                cube.push(new THREE.Mesh(new THREE.CylinderGeometry(2, 2, data[i], 40, 10), material));
+                cube[i].scale.y = 0.1;
+                // cube.castShadow=true;
+                scene.add(cube[i])
+            }
+            (function (iv, cube) {
+                var timer = setInterval(function () {
+                    iv = parseFloat((iv + 0.1).toFixed(2));
+                    for (let i = 0; i < cube.length; i++) {
+                        cube[i].scale.y = iv;
+                        cube[i].position.set((-15 + 6 * i), iv * data[i] / 2, 0);
+                        scene.add(cube[i]);
+                    }
+                    if (iv >= 1) {
+                        clearInterval(timer);
+                        timer = null;
+                        return;
+                    }
+                }, 100)
+            })(0.1, cube)
+
+            // 创建材质、添加材质、添加文字
+            var materialArr = [];
+            for (let i = 0; i < data.length; i++) {
+                texture.push(new THREE.Texture(canvas[i]));
+                materialArr.push(new THREE.MeshPhongMaterial({ map: texture[i] }));
+                planeText.push(new THREE.Mesh(new THREE.PlaneBufferGeometry(4, 4, 1), materialArr[i]));
+                planeText[i].rotateX(-Math.PI / 2);
+                planeText[i].rotateZ(1);
+                planeText[i].position.set(-15 + 6 * i, -0.5, 6)
+                scene.add(planeText[i]);
+            }
+            (function (planeText) {
+                var len = 6;
+                var i = 0;
+                var timer = setInterval(function () {
+                    planeText[0].position.y += 0.1;
+                    planeText[1].position.y += 0.1;
+                    planeText[2].position.y += 0.1;
+                    planeText[3].position.y += 0.1;
+                    planeText[4].position.y += 0.1;
+                    planeText[5].position.y += 0.1;
+                    i++;
+                    if (i >= len) {
+                        clearInterval(timer);
+                        timer = null;
+                        return;
+                    }
+                }, 100)
+            })(planeText)
+        }
+        function draw(ctx) {
+            for (var i = 0; i < ctx.length; i++) {
+                ctx[i].font = '48pt Arial';
+                ctx[i].fillStyle = '#ff0000';
+                ctx[i].fillRect(0, 0, canvas[i].width, canvas[i].height);
+                ctx[i].fillStyle = '#0c0c0c';
+                ctx[i].textAlign = "center";
+                ctx[i].textBaseline = "middle";
+                ctx[i].fillText(`data1[i]`, canvas[i].width / 2, canvas[i].height / 2);
+                ctx[i].save();
+            }
+        }
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+        function render() {
+            renderer.render(scene, camera);
+        }
+        function controls() {
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.addEventListener("change", render);
+        }
+        var textObj = [];
+        var textY = [];
+        function initTexts() {
+            // 加载font的json包,传入函数
+
+            var text = new THREE.FontLoader().load('../fonts/helvetiker_bold.typeface.json', function (text) {
+                var gem1, gem2, gem3, gem4, gem5, gem6;
+                var gem = [gem1, gem2, gem3, gem4, gem5, gem6];
+                var points = [];
+                for (let i = 0; i < gem.length; i++) {
+                    gem[i] = new THREE.TextGeometry(data[i], {
+                        size: 3,
+                        height: 0.1,
+                        font: text,
+                        style: 'normal',
+                        bevelThickness: 0.1,
+                        bevelSize: 0.1,
+                        curveSegments: 0.1,
+                        bevelEnabled: true,
+                    });
+                }
+                for(let i =0; i < 5; i++){
+                    points[i] = new THREE.TextGeometry(datap[i],{
+                        size: 2,
+                        height: 0.01,
+                        font: text,
+                        style: 'normal',
+                        bevelThickness: 0.01,
+                        bevelSize: 0.01,
+                        curveSegments: 0.01,
+                        bevelEnabled: true,
+                    })
+                    points[i].center();
+                }
+                var mat = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular: 0xffffff,
+                    shininess: 30,
+                    shading: THREE.FlatShading
+                });
+                for (var i = 0; i < gem.length; i++) {
+                    gem[i].center();
+                    textObj.push(new THREE.Mesh(gem[i], mat));
+                    //textObj[i].rotation.y = -Math.PI / 6;
+                    textObj[i].position.set(-15 + 6 * i, 0.1, 0);
+                    textObj[i].castShadow = true;
+                    scene.add(textObj[i]);
+                    
+                    textY.push(new THREE.Mesh(points[i],mat));
+                    textY[i].position.set(-24,0,0)
+                    scene.add(textY[i]);
+                }
+                (function (textObj) {
+                    console.log(textY,777777)
+                    var len = textObj.length;
+                    var i = 0;
+                    var timer = setInterval(function (params) {
+                        textObj[0].position.y += data[0] * 0.25;
+                        textObj[1].position.y += data[1] * 0.2;
+                        textObj[2].position.y += data[2] * 0.25;
+                        textObj[3].position.y += data[3] * 0.2;
+                        textObj[4].position.y += data[4] * 0.3;
+                        textObj[5].position.y += data[5] * 0.2;
+                        // textY[0].position.y = 1.1;
+                        // textY[1].position.y  = 2;
+                        // textY[2].position.y  = 4;
+                        // textY[3].position.y  = 6;
+                        // textY[4].position.y  = 8;
+                        // textY[5].position.y  = 10;
+                        i++;
+                        if (i > 5) {
+                            clearInterval(timer);
+                            timer = null;
+                        }
+                    }, 100)
+                })(textObj);
+                (function(textY){
+                    var len = textY.length;
+                    var i = 0;
+                    var timer = setInterval(function (params) {
+                        textY[i].position.y = 1.1 + 2*i;
+                        loadY();
+                    }, 100)
+                    function loadY(){
+                        i++;
+                        if (i > 5) {
+                            clearInterval(timer);
+                            timer = null;
+                        }
+                    }
+                })(textY)
+            })
+        }
+    </script>
+</body>
+
+</html>
