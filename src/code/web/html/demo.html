@@ -1,118 +1,134 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>纯Css 3d统计图</title>
-    <link rel="stylesheet" href="../css/demo.css">
-    <script src="../js/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>bar chart</title>
+    <script src='../js/jquery.min.js'></script>
+    <script src="../js/three.min.js"></script>
+    <script src="../js/OrbitControls.js"></script>
+    <script src="../js/onEvent.js"></script>
+    <style>
+        body {
+            color: #808080;
+            font-family: Monospace;
+            font-size: 13px;
+            text-align: center;
+
+            background-color: #ccc;
+            margin: 0px;
+            overflow: hidden;
+        }
+
+        .addData {
+            width: 60px;
+            height: 30px;
+            position: absolute;
+            top: 10px;
+            text-align: center;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            line-height: 30px;
+            color: #00f;
+            display: none;
+            font-size: 24px;
+        }
+    </style>
 </head>
 
 <body>
-    <div class='assembly'>
-        <div class='plane'></div>
-        <div class='bars'>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-            <div class='bar'>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-                <div class='face'></div>
-            </div>
-        </div>
-    </div>
     <script>
-        $(function () {
-            var xN, yN, roY = 0, roX = 0;
-            var play = null;
-            $(".plane").mousedown(function (ev) {
-                var x_ = ev.clientX;
-                var y_ = ev.clientY;
-                clearInterval(play);
-                console.log('我按下了');
-                $(this).on('mousemove', function (ev) {
-                    /*获取当前鼠标的坐标*/
-                    var x = ev.clientX;
-                    var y = ev.clientY;
-                    /*两次坐标之间的距离*/
-                    xN = x - x_;
-                    yN = y - y_;
+        // 定义数据
+        var data = [3, 10, 6, 8, 2, 8];
+        var datap = [2, 4, 6, 8, 10];
+        var data1 = ['四月', '五月', '六月', '七月', '八月', '九月', '十月'];
+        var width = window.innerWidth,
+            height = window.innerHeight;
+        var aspect = width / height;
+        var scene, camera, renderer;
+        var len = data.length;
+        // 定义程序入口
+        init();
+        animate();
+        function init() {
+            // 创建容器并添加场景
+            container = document.createElement('div');
+            document.body.appendChild(container);
+            scene = new THREE.Scene();
 
-                    roY += xN * 0.2;
-                    
-                    roX -= (yN * 0.1);
-                    console.log(roX,9090)
-                    console.log('移动');
-                    console.log(typeof (yN),yN, roX, 9090)
-                    $(this).parent(".assembly").css({
-                        transform: 'perspective(800px) rotateX(' + roX + 'deg) rotateY(' + roY + 'deg)'
-                    });
+            // 辅助坐标
+            axes = new THREE.AxisHelper(100);
+            scene.add(axes);
 
-                    x_ = ev.clientX;
-                    y_ = ev.clientY;
+            // 创建相机
+            camera = new THREE.PerspectiveCamera(50, 0.5 * aspect, 1, 1000);
+            camera.position.set(0, 30, 80);
+            camera.lookAt(scene.position);
 
-                });
-            }).on(function () {
-                $(this).unbind('mousemove');
-                var play = setInterval(function () {
+            //创建灯光
+            var point = new THREE.PointLight(0xffffff);
+            point.position.set(100, 100, 100);
+            scene.add(point);
+            var light = new THREE.DirectionalLight(0xffffff);
+            light.position.set(100, 100, 100);
+            scene.add(light);
+            var light = new THREE.DirectionalLight(0xffffff);
+            light.position.set(-100, -100, -100);
+            scene.add(light);
+            var light = new THREE.AmbientLight(0xffffff);
+            scene.add(light);
+            // 添加渲染器
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+            createPlane();
+            creatCube();
 
-                    xN *= 0.95;
-                    yN *= 0.95
-                    if (Math.abs(xN) < 1 && Math.abs(yN) < 1) {
-                        clearInterval(play);
-                    }
-                    roY += xN * 0.2;
-                    roX -= yN * 0.1;
-                    $(this).parent().css({
-                        transform: 'perspective(800px) rotateX(' + roX + 'deg) rotateY(' + roY + 'deg)'
-                    });
+            //添加控制器
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.addEventListener("change", mo);
 
-                }, 30);
-
+        }
+        // 定义动画
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        function createPlane() {
+            // 创建坐标平面
+            var planeGeometry = new THREE.PlaneBufferGeometry(6 * len, 20);
+            planeGeometry.rotateX(- Math.PI / 2);
+            var planeMaterial = new THREE.MeshBasicMaterial({
+                color: 0xD2D2D2, overdraw: 0.5
             });
-        })
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            scene.add(plane);
+        }
+        // 创建柱体并且画线
+        function creatCube() {
+            //添加three.js的事件
+            var threeOnEvent = new THREE.onEvent(scene, camera);
+            var material = new THREE.MeshPhongMaterial({ color: 0xE38B23 });
+            var cube = new THREE.Mesh(new THREE.BoxGeometry(4, 20, 4), material);
+            cube.position.y = 20 / 2 + 0.01;
+            scene.add(cube);
+            cube.on('hover', function (m) {
+                console.log(m)
+               m.material.color.setHex(0x999999);
+            })
+            // cube.off();
+        }
+        function mo(e) {
+            console.log(e);
+        }
     </script>
+
+    <div class="addData">
+        <span class='dataContainer'>nihao</span>
+    </div>
 </body>
 
 </html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div style="margin: 0 auto ;width: 600px">
+        <canvas id="canvas">
+            你的浏览器不支持canvas,请下载新版的浏览器！
+        </canvas>
+    </div>
+    <script>
+        // 获取数据
+        var data = [200, 10, 300, 310, 100, 260, 400, 300, 200];
+        // 获取canvas的上下文
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext('2d');
+        w = canvas.width = 600;
+        h = canvas.height = 500;
+        // 转化canvas坐标的原点
+        ctx.translate(60, h - 60);
+        // 绘制网格
+        function drawGrid(ctx, w, h, stroke, steps, data) {
+            ctx.save();
+            ctx.beginPath();
+            var i = 0;
+            var timer = setInterval(function () {
+                // 画横坐标
+                ctx.moveTo(i, 0);
+                ctx.lineTo(i, 6);
+                ctx.strokeStyle = stroke;
+                ctx.stroke();
+                ctx.restore();
+                ctx.font = '12px';
+                ctx.fillText(`${i}`, i, 30);
+                // 画纵坐标
+                ctx.moveTo(0, -i);
+                ctx.lineTo(w, -i);
+                ctx.strokeStyle = stroke;
+                ctx.stroke();
+                ctx.restore();
+                ctx.font = '12px';
+                ctx.fillText(`${i}`, -30, -i);
+                i += 50;
+                console.log(i, 89)
+                if (i > data.length * 50) {
+                    clearInterval(timer);
+                    timer = null;
+                    drawRect(ctx, data)
+                    return;
+                }
+            }, 100)
+            ctx.restore();
+        }
+        drawGrid(ctx, w, h, '#000', 50, data);
+        // 转化坐标
+
+        function drawRect(ctx, data) {
+            ctx.save();
+            ctx.fillStyle = '#0ff';
+            var i = 0;
+            var timer = setInterval(function () {
+                ctx.fillRect(10 + i * 50, 0, 30, -data[i]);
+                i++;
+                if (i > data.length) {
+                    clearInterval(timer);
+                    timer = null;
+                    return;
+                }
+            }, 500)
+        }
+        // 绘制粒子
+        var particles = [];
+        function calculate(data){
+            var len = data.length;
+            console.log(data,9898) 
+        }
+        calculate(data);
+    </script>
+</body>
+
+</html>

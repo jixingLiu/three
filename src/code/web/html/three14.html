@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <tile>Document</tile>
+    <script src='../js/jquery.min.js'></script>
+</head>
+
+<body>
+    <canvas id="canvas" width="600" height="600">
+        你的浏览器不支持canvas,请升级！
+    </canvas>
+    <script>
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        // // 新建图片对象，及其加载图片并获得信息
+        var img = new Image();
+        // img.onload = function () {
+        //     // Top left 
+        //     ctx.translate(0, 0);
+        //     ctx.drawImage(img, 0, 0, img_w, img_h);
+        //     // Bottom left 
+        //     ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset the transformation matrix 
+        //     ctx.translate(img_w +50 ,img_h);
+        //     ctx.scale(1, -1);
+        //     ctx.drawImage(img, 0, 0, img_w, img_h);
+        //     // Bottom right 
+        //     ctx.setTransform(1, 0, 0, 1, 0, 0);
+        //     ctx.translate(img_w, 600); 
+        //     ctx.scale(-1, -1);
+        //     ctx.drawImage(img, 0, 0, img_w, img_h);
+        //     // Top right 
+        //     ctx.setTransform(1, 0, 0, 1, 0, 0);
+        //     ctx.translate(450, img_h+50);
+        //     ctx.scale(-1, 1);
+        //     ctx.drawImage(img, 0, 0, img_w, img_h);
+        //     var data = ctx.getImageData(0, 0, img_w, img_h);
+        //     //ctx.clearRect(0,0,600,400);
+        // }
+        img.src = '../images/rolse1.jpg';
+        var img_w = img.width;
+        var img_h = img.height;
+        console.log(img.width, img.height)
+        // 创建新元素
+
+        // var imageData = ctx.createImageData(200, 200);
+        // var numPixels = imageData.width * imageData.height;
+        // var pixels = imageData.data;
+        // for (var i = 0; i < numPixels; i++) {
+        //     pixels[i * 4] = Math.floor(Math.random() * 255); // Red 
+        //     pixels[i * 4 + 1] = Math.floor(Math.random() * 255); // Green 
+        //     pixels[i * 4 + 2] = Math.floor(Math.random() * 255); // Blue 
+        //     pixels[i * 4 + 3] = 255; // Alpha
+        // };
+        //ctx.putImageData(imageData, 0, 0);
+        //创建马赛克
+        // var imageData = ctx.createImageData(500, 500);
+        // var pixels = imageData.data;
+        // var numRows = 4;
+        // var numCols = 4;
+
+        // var tileWidth = imageData.width / numCols; //125
+        // var tileHeight = imageData.height / numRows; //125
+        // // 遍历行
+        // for (let r = 0; r < numRows; r++) {
+        //     // 遍历块
+        //     for (let c = 0; c < numCols; c++) {
+        //         var red = Math.floor(Math.random() * 255);
+        //         var green = Math.floor(Math.random() * 255);
+        //         var blue = Math.floor(Math.random() * 255);
+        //         //当前访问像素的行
+        //         for (var tr = 0; tr < tileHeight; tr++) {
+        //             //当前访问像素的列
+        //             for (var tc = 0; tc < tileWidth; tc++) {
+        //                 var trueX = (c * tileWidth) + tc;
+        //                 var trueY = (r * tileHeight) + tr;
+        //                 var pos = (trueY * (imageData.width * 4)) + (trueX * 4);
+        //                 pixels[pos] = red;
+        //                 pixels[pos + 1] = green;
+        //                 pixels[pos + 2] = blue;
+        //                 pixels[pos + 3] = 255;
+        //             };
+        //         };
+        //     }
+        // }
+        //ctx.putImageData(imageData, 0, 0);
+        // 图片的像素化
+        var image = new Image();
+        image.src = '../images/rolse1.jpg';
+        $(image).load(function () {
+            ctx.drawImage(image, 0, 0);
+            var imageData = ctx.getImageData(0, 0, image.width,image.height);
+            var pixels = imageData.data;
+            ctx.clearRect(0, 0, image.width,image.height);
+            var numTileRows = 20;
+            var numTileCols = 20;
+            var tileWidth = imageData.width / numTileCols;
+            var tileHeight = imageData.height / numTileRows;
+            for (let r = 0; r < numTileRows; r++) {
+                for (let c = 0; c < numTileCols; c++) {
+                    for (let rx = 0; rx < tileWidth; rx++) {
+                        for (let ry = 0; ry < tileHeight; ry++) {
+                            var x = (c * tileWidth) + (tileWidth / 2);
+                            var y = (r * tileHeight) + (tileHeight / 2);
+                            var pos = (Math.floor(y) * (imageData.width * 4)) + (Math.floor(x) * 4);
+                            var red = pixels[pos];
+                            var green = pixels[pos + 1];
+                            var blue = pixels[pos + 2];
+                            ctx.fillStyle = `rgb(${red},${green},${blue})`;
+                            //ctx.fillRect(x-tileWidth/2, y- (tileHeight/2),tileWidth,tileHeight)
+                            ctx.beginPath();
+                            ctx.arc(x,y,tileHeight/2,0,Math.PI*2,false);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>

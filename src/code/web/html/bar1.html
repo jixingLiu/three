@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>three.js webgl - interactive cubes</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <style>
+        body {
+            font-family: Monospace;
+            background-color: #fff;
+            margin: 0px;
+            overflow: hidden;
+        }
+        .addData {
+            width: 60px;
+            height: 30px;
+            position: absolute;
+            top: 10px;
+            text-align: center;
+            border: 1px solid #fff;
+            border-radius: 5px;
+            line-height: 30px;
+            color: #00f;
+            /* display: none; */
+            font-size: 24px;
+        }
+        .leftdata,.backdata{
+            position: absolute;
+            left:36%;
+            top: 50px;
+        }
+        .leftdata,.backdata>li{
+            list-style: none;
+            font-size: 14px;
+            color: #00f;
+        }
+        .backdata{
+            top: 170px;
+            left: 38%;
+            transform-origin:50% 50%;
+            transform: rotate(30deg);
+            /* transform: rotateY(60deg); */
+            /* transform: rotate3d(60deg,60deg,60deg); */
+        }
+        .backdata>li{
+            float: left;
+            width: 30px;
+        }
+    </style>
+    <script src="../js/three.min.js"></script>
+    <script src="../js/jquery.min.js"></script>
+    <script src="../js/OrbitControls.js"></script>
+    <script src="../js/stats.js"></script>
+</head>
+
+<body>
+
+    <!-- 纹理 -->
+    <canvas id="canvas0"></canvas>
+    <canvas id="canvas1"></canvas>
+    <canvas id="canvas2"></canvas>
+    <script>
+        var container, stats;
+        var camera, scene, raycaster, renderer;
+
+        var mouse = new THREE.Vector2(), INTERSECTED;
+        var objects = Array.of();
+        var len = 6;
+        var canvas = Array.of();
+        var ctx = Array.of();
+        var texture = Array.of();
+        var halfW = window.innerWidth/2;
+        for(let i = 0; i < $('canvas').length; i ++){
+            canvas[i] = document.getElementById(`canvas${i}`);
+            canvas[i].style.display = 'none';
+            ctx[i] = canvas[i].getContext('2d');
+            // 画平面的画布
+            if (i == 0) {
+                canvas[i].width = 360;
+                canvas[i].height = 150;
+                //ctx[0].translate(0, 360);
+                for (let j = 0; j < 6; j++) {
+                    if (j % 2 == 0) {
+                        ctx[i].fillStyle = '#CACACA';
+                    } else {
+                        ctx[i].fillStyle = '#A7AAAB';
+                    }
+                    ctx[i].fillRect(360 / 6 * j,0, 360/6, 150);
+                    ctx[i].save();
+                    // ctx[0].fillStyle = '#ffffff';
+                    // ctx[0].font = "12px Georgia";
+                    // ctx[0].fillText(`10`, 0, -300 / 10 * i + 10);
+                }
+            }
+            // 画背面的画布
+            if(i == 1){
+                canvas[i].width = 480;
+                canvas[i].height = 200;
+                ctx[i].translate(0, 200);
+                for (let j = 0; j < 5; j++) {
+                    if (j % 2 == 0) {
+                        ctx[i].fillStyle = '#A7AAAB';
+                    } else {
+                        ctx[i].fillStyle = '#CACACA';
+                    }
+                    ctx[i].fillRect(0,-200/ 5 * j - 40, 480, 200/5);
+                    ctx[i].save();
+                    // ctx[0].fillStyle = '#ffffff';
+                    // ctx[0].font = "12px Georgia";
+                    // ctx[0].fillText(`10`, 0, -300 / 10 * i + 10);
+                }
+            }
+            texture[i] = new THREE.Texture(canvas[i]);
+            texture[i].needsUpdate = true
+        }
+
+        init();
+        animate();
+        function init() {
+            // 容器
+            container = document.createElement('div');
+            document.body.appendChild(container);
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
+            camera.position.set(60, 30, 60)
+            camera.lookAt(scene.position);
+            
+            var ambientLight = new THREE.AmbientLight(0xffffff);
+            scene.add(ambientLight);
+            // 辅助坐标
+            var axes = new THREE.AxisHelper(1000);
+            scene.add(axes);
+
+            var directionalLight = new THREE.DirectionalLight(Math.random() * 0xffffff);
+            directionalLight.position.set(0.4, 0.4, 0.4).normalize();
+            var directionalLight = new THREE.DirectionalLight(Math.random() * 0xffffff);
+            directionalLight.position.set(-0.2, 0.5, -0.1).normalize();
+            scene.add(directionalLight);
+
+            var geometry = new THREE.BoxBufferGeometry(4, 20, 4);
+            for (var i = 0; i < 6; i++) {
+                objects[i] = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({ color: Math.random() * 0xffffff }));
+                objects[i].position.set(-8 * 6 / 2 + i * 8 + 4, 10, 0)
+                scene.add(objects[i]);
+            }
+            raycaster = new THREE.Raycaster();
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            //重新计算浏览器
+            window.addEventListener('resize', onWindowResize, false);
+            createPlane();
+            back();
+            //添加控制器
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            //controls.addEventListener("change", mo);
+        }
+        // 创建坐标平面
+        function createPlane() {
+            var planeGeometry = new THREE.PlaneBufferGeometry(8 * 6, 20);
+            planeGeometry.rotateX(- Math.PI / 2);
+            var planeMaterial = new THREE.MeshBasicMaterial({
+                //color: 0xB7B7B7,
+                map: texture[0],
+                side: THREE.DoubleSide
+            });
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            scene.add(plane);
+        }
+        // 画数据平面 和 左边的平面
+        function back() {
+            // 背后的平面
+            var planeMaterial = new THREE.MeshBasicMaterial({
+                // color: 0xB7B7B7,
+                map: texture[1],
+                side: THREE.DoubleSide
+            });
+            var planeGeometry = new THREE.PlaneBufferGeometry(8 * 6, 20);
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.position.set(0, 10, -10);
+            scene.add(plane);
+            // 左边的平面
+            var planeGeometry = new THREE.PlaneBufferGeometry(20, 20);
+            planeGeometry.rotateY(-Math.PI / 2)
+            plane = new THREE.Mesh(planeGeometry, planeMaterial);
+            plane.position.set(-24, 10, 0)
+            scene.add(plane);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        function onDocumentMouseMove(event) {
+            event.preventDefault();
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+        }
+        //动画
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            camera.updateMatrixWorld();
+            // 计算采光线的交叉点
+            raycaster.setFromCamera(mouse, camera);
+            var intersects = raycaster.intersectObjects(objects);
+            if (intersects.length > 0) {
+                if (INTERSECTED != intersects[0].object) {
+                    if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+                    INTERSECTED = intersects[0].object;
+                    INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+                    INTERSECTED.material.emissive.setHex(0xff0000);
+                    console.log(INTERSECTED.position.x,888)
+                    $('.addData').css({
+                        display: 'block',
+                        left: (INTERSECTED.position.x * 4.5) + halfW,
+                        top: 50,
+                    }).html(10)
+                    console.log(INTERSECTED.position.x * 4, 89)
+                }
+            } else {
+                if (INTERSECTED) INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+                INTERSECTED = null;
+                $('.addData').css({
+                    display: 'none',
+                })
+            }
+            renderer.render(scene, camera);
+        }
+    </script>
+    <div class="addData">
+        <span class='dataContainer'>nihao</span>
+    </div>
+    <ul class="leftdata">
+        <li>20%</li>
+        <li>40%</li>
+        <li>60%</li>
+        <li>80%</li>
+        <li>100%</li>
+    </ul>
+    <ul class="backdata">
+        <li>1月</li>
+        <li>2月</li>
+        <li>3月</li>
+        <li>4月</li>
+        <li>5月</li>
+        <li>6月</li>
+    </ul>
+</body>
+
+</html>
