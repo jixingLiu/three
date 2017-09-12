@@ -8,10 +8,11 @@
     <style>
         body {
             font-family: Monospace;
-            background-color: #fff;
+            background-color: #333;
             margin: 0px;
             overflow: hidden;
         }
+
         .addData {
             width: 60px;
             height: 30px;
@@ -25,25 +26,31 @@
             /* display: none; */
             font-size: 24px;
         }
-        .leftdata,.backdata{
+
+        .leftdata,
+        .backdata {
             position: absolute;
-            left:36%;
+            left: 36%;
             top: 50px;
         }
-        .leftdata,.backdata>li{
+
+        .leftdata,
+        .backdata>li {
             list-style: none;
             font-size: 14px;
             color: #00f;
         }
-        .backdata{
+
+        .backdata {
             top: 170px;
             left: 38%;
-            transform-origin:50% 50%;
+            transform-origin: 50% 50%;
             transform: rotate(30deg);
             /* transform: rotateY(60deg); */
             /* transform: rotate3d(60deg,60deg,60deg); */
         }
-        .backdata>li{
+
+        .backdata>li {
             float: left;
             width: 30px;
         }
@@ -70,8 +77,8 @@
         var canvas = Array.of();
         var ctx = Array.of();
         var texture = Array.of();
-        var halfW = window.innerWidth/2;
-        for(let i = 0; i < $('canvas').length; i ++){
+        var halfW = window.innerWidth / 2;
+        for (let i = 0; i < $('canvas').length; i++) {
             canvas[i] = document.getElementById(`canvas${i}`);
             canvas[i].style.display = 'none';
             ctx[i] = canvas[i].getContext('2d');
@@ -79,22 +86,19 @@
             if (i == 0) {
                 canvas[i].width = 360;
                 canvas[i].height = 150;
-                //ctx[0].translate(0, 360);
                 for (let j = 0; j < 6; j++) {
                     if (j % 2 == 0) {
                         ctx[i].fillStyle = '#CACACA';
                     } else {
                         ctx[i].fillStyle = '#A7AAAB';
                     }
-                    ctx[i].fillRect(360 / 6 * j,0, 360/6, 150);
+                    ctx[i].fillRect(360 / 6 * j, 0, 360 / 6, 150);
                     ctx[i].save();
-                    // ctx[0].fillStyle = '#ffffff';
-                    // ctx[0].font = "12px Georgia";
-                    // ctx[0].fillText(`10`, 0, -300 / 10 * i + 10);
+                    
                 }
             }
             // 画背面的画布
-            if(i == 1){
+            if (i == 1) {
                 canvas[i].width = 480;
                 canvas[i].height = 200;
                 ctx[i].translate(0, 200);
@@ -104,11 +108,8 @@
                     } else {
                         ctx[i].fillStyle = '#CACACA';
                     }
-                    ctx[i].fillRect(0,-200/ 5 * j - 40, 480, 200/5);
+                    ctx[i].fillRect(0, -200 / 5 * j - 40, 480, 200 / 5);
                     ctx[i].save();
-                    // ctx[0].fillStyle = '#ffffff';
-                    // ctx[0].font = "12px Georgia";
-                    // ctx[0].fillText(`10`, 0, -300 / 10 * i + 10);
                 }
             }
             texture[i] = new THREE.Texture(canvas[i]);
@@ -122,11 +123,11 @@
             container = document.createElement('div');
             document.body.appendChild(container);
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0xf0f0f0);
+            scene.background = new THREE.Color(0x333333);
             camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 10000);
             camera.position.set(60, 30, 60)
             camera.lookAt(scene.position);
-            
+
             var ambientLight = new THREE.AmbientLight(0xffffff);
             scene.add(ambientLight);
             // 辅助坐标
@@ -193,7 +194,58 @@
             plane.position.set(-24, 10, 0)
             scene.add(plane);
         }
+        // 创建文字
+        createText();
+        function createText() {
+            var text = new THREE.FontLoader().load('../fonts/Microsoft YaHei_Regular.json', function (text) {
+                var gem = Array.of();
+                var textObj = Array.of();
 
+                var points = Array.of();
+                var textPoint = Array.of();
+                var mat = new THREE.MeshPhongMaterial({
+                    color: 0xffffff,
+                    specular: 0x009900,
+                    shininess: 30,
+                    shading: THREE.FlatShading
+                });
+                for (let i = 0; i < 6; i++) {
+                    gem[i] = new THREE.TextGeometry(`${i+1}月`, {
+                        size: 2,
+                        height: 0.001,
+                        weight: 'normal',
+                        font: text,
+                        style: 'normal', //值为'normal'或'italics'，表示是否斜体
+                        bevelThickness: 0.001,
+                        bevelSize: 0.001,
+                        curveSegments: 60,
+                        offset: 1,
+                    });
+                    
+                    textObj[i] = new THREE.Mesh(gem[i], mat);
+                    gem[i].center();
+                    textObj[i].position.set(-24 + i * 8 + 4, 1, 10);
+                    scene.add(textObj[i]);
+                }
+                for(let i = 0; i < 5;i ++){
+                    points[i] = new THREE.TextGeometry(`${20*(i+1)}%`, {
+                        size: 2,
+                        height: 0.001,
+                        weight: 'normal',
+                        font: text,
+                        style: 'normal', //值为'normal'或'italics'，表示是否斜体
+                        bevelThickness: 0.001,
+                        bevelSize: 0.001,
+                        curveSegments: 60,
+                        offset: 1,
+                    });
+                    textPoint[i] = new THREE.Mesh(points[i], mat);
+                    points[i].center();
+                    textPoint[i].position.set(-28 ,i * 4 + 2, 10);
+                    scene.add(textPoint[i]);
+                }
+            });
+        }
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -221,7 +273,7 @@
                     INTERSECTED = intersects[0].object;
                     INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
                     INTERSECTED.material.emissive.setHex(0xff0000);
-                    console.log(INTERSECTED.position.x,888)
+                    console.log(INTERSECTED.position.x, 888)
                     $('.addData').css({
                         display: 'block',
                         left: (INTERSECTED.position.x * 4.5) + halfW,
@@ -242,21 +294,6 @@
     <div class="addData">
         <span class='dataContainer'>nihao</span>
     </div>
-    <ul class="leftdata">
-        <li>20%</li>
-        <li>40%</li>
-        <li>60%</li>
-        <li>80%</li>
-        <li>100%</li>
-    </ul>
-    <ul class="backdata">
-        <li>1月</li>
-        <li>2月</li>
-        <li>3月</li>
-        <li>4月</li>
-        <li>5月</li>
-        <li>6月</li>
-    </ul>
 </body>
 
 </html>
